@@ -1,35 +1,32 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+      <div className="min-h-screen bg-futoWhite flex items-center justify-center">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h1 className="text-3xl font-bold text-futoGreen mb-4">
+            Welcome to Vite + React + Tailwind CSS
+          </h1>
+          <p className="text-blue-700">
+            Edit <code className="text-pink-600">src/App.jsx</code> and save to reload.
+          </p>
+          <button
+            className="mt-4 bg-futoGreen text-white px-4 py-2 rounded"
+            onClick={() => setCount(count + 1)}
+          >
+            Count is {count}
+          </button>
+        </div>
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
