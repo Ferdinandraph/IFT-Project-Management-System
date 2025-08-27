@@ -13,7 +13,6 @@ function App() {
       {!hideNavbar && <Navbar />}
 
       <Routes>
-        {/* <Route path="/" element={<h1 className="text-2xl font-bold text-blue-500">Hello, World!</h1>} /> */}
         <Route path="/" element={<Home />} />
         {<Route path="/admin-login" element={<AdminLogin/>} />}
       </Routes>
