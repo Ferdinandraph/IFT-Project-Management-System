@@ -22,7 +22,7 @@ const AdminLogin = () => {
       localStorage.setItem('role', role);
 
       if (role === 'admin') {
-        navigate('/admin-dashboard');
+        navigate('/admin');
       } else {
         setError('Access denied. Admin credentials required.');
       }
