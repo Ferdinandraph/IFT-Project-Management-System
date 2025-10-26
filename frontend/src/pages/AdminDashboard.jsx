@@ -42,8 +42,13 @@ export default function AdminDashboard() {
     }
 
     const handleSignOut = () => {
+        // clear all login/session keys so the app returns to public state
         localStorage.removeItem("isAdminLoggedIn");
-        navigate("/admin-login");
+        localStorage.removeItem('token');
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('username');
+        localStorage.removeItem('role');
+        navigate("/");
     }
 
     const [sidebarOpen, setSidebarOpen] = useState(false);

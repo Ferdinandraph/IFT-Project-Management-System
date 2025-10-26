@@ -21,6 +21,8 @@ const LoginModal = ({ isOpen, onClose, role }) => {
       });
       const { token, role: userRole } = response.data;
       localStorage.setItem('token', token);
+  // Save the username locally so the UI can show a welcome message
+  localStorage.setItem('username', username);
       localStorage.setItem('role', userRole);
 
       // Navigate based on role

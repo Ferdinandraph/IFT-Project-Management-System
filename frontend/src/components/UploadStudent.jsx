@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { studentAPI } from "../services/api";
 
 export default function UploadStudent() {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,15 +43,23 @@ export default function UploadStudent() {
     }
 
     setError("");
+    // Upload file to backend
+    (async () => {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
 
-    // Temporary simulation for upload success
-    setTimeout(() => {
-      console.log("File uploaded:", file.name);
-      setSuccess("Students uploaded successfully!");
-      setTimeout(() => {
-        handleCloseModal();
-      }, 1500);
-    }, 500);
+        await studentAPI.uploadStudentsCSV(formData);
+        setSuccess("Students uploaded successfully!");
+        setTimeout(() => {
+          handleCloseModal();
+        }, 1200);
+      } catch (err) {
+        console.error(err);
+        const msg = err?.response?.data?.message || err.message || 'Failed to upload CSV';
+        setError(msg);
+      }
+    })();
   };
 
   return (

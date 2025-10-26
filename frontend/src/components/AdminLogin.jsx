@@ -19,6 +19,8 @@ const AdminLogin = () => {
       });
       const { token, role } = response.data;
       localStorage.setItem('token', token);
+  // persist username for display in UI
+  localStorage.setItem('username', username);
       localStorage.setItem('role', role);
 
       if (role === 'admin') {

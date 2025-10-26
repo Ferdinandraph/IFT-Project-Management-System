@@ -1,12 +1,16 @@
 import React, { useState } from "react";
+import { supervisorAPI } from "../services/api";
 
 export default function AddSupervisor() {
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState({
     title: "",
-    fullName: "",
+    name: "",
+    username: "",
     email: "",
     password: "",
+    department: "Information Technology",
+    field: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -19,7 +23,7 @@ export default function AddSupervisor() {
 
   const handleCloseModal = () => {
     setIsOpen(false);
-    setForm({ title: "", fullName: "", email: "", password: "" });
+    setForm({ title: "", name: "", username: "", email: "", password: "", department: "Information Technology", field: "" });
     setError("");
     setSuccess("");
   };
@@ -44,7 +48,7 @@ export default function AddSupervisor() {
     e.preventDefault();
 
     // Form validation
-    if (!form.title || !form.fullName || !form.email || !form.password) {
+    if (!form.title || !form.name || !form.username || !form.email || !form.password || !form.department || !form.field) {
       setError("All fields are required");
       return;
     }
@@ -56,14 +60,29 @@ export default function AddSupervisor() {
 
     setError("");
 
-    // temporary frontend-only success simulation
-    setTimeout(() => {
-      console.log("Supervisor added:", form);
-      setSuccess("Supervisor added successfully!");
-      setTimeout(() => {
-        handleCloseModal();
-      }, 1500);
-    }, 500);
+    (async () => {
+      try {
+        const payload = {
+          title: form.title,
+          name: form.name,
+          username: form.username,
+          email: form.email,
+          password: form.password,
+          department: form.department,
+          field: form.field,
+        };
+
+        await supervisorAPI.addSupervisor(payload);
+        setSuccess("Supervisor added successfully!");
+        setTimeout(() => {
+          handleCloseModal();
+        }, 1200);
+      } catch (err) {
+        console.error(err);
+        const msg = err?.response?.data?.message || err.message || "Failed to add supervisor";
+        setError(msg);
+      }
+    })();
   };
 
   return (
@@ -97,6 +116,18 @@ export default function AddSupervisor() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Username</label>
+                        <input
+                          type="text"
+                          name="username"
+                          placeholder="username (unique)"
+                          value={form.username}
+                          onChange={handleChange}
+                          className="border w-full rounded-md px-3 py-2 focus:ring-1 focus:ring-green-600"
+                        />
+                      </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Title</label>
                 <select
@@ -114,17 +145,17 @@ export default function AddSupervisor() {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                <input
-                  type="text"
-                  name="fullName"
-                  placeholder="Enter full name"
-                  value={form.fullName}
-                  onChange={handleChange}
-                  className="border w-full rounded-md px-3 py-2 focus:ring-1 focus:ring-green-600"
-                />
-              </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                        <input
+                          type="text"
+                          name="name"
+                          placeholder="Enter full name"
+                          value={form.name}
+                          onChange={handleChange}
+                          className="border w-full rounded-md px-3 py-2 focus:ring-1 focus:ring-green-600"
+                        />
+                      </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">FUTO Email</label>
@@ -139,21 +170,54 @@ export default function AddSupervisor() {
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-gray-700">Department</label>
+                <select
+                  name="department"
+                  value={form.department}
+                  onChange={handleChange}
+                  className="border w-full rounded-md px-3 py-2 focus:ring-1 focus:ring-green-600"
+                >
+                  <option value="Information Technology">Information Technology</option>
+                  <option value="Cyber Security">Cyber Security</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Software Engineering">Software Engineering</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Field</label>
+                <select
+                  name="field"
+                  value={form.field}
+                  onChange={handleChange}
+                  className="border w-full rounded-md px-3 py-2 focus:ring-1 focus:ring-green-600"
+                >
+                  <option value="">Select Field</option>
+                  <option value="Blockchain">Blockchain</option>
+                  <option value="AI">AI</option>
+                  <option value="Web Development">Web Development</option>
+                  <option value="Mobile Development">Mobile Development</option>
+                  <option value="Data Science">Data Science</option>
+                  <option value="DevOps">DevOps</option>
+                </select>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-gray-700">Password</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
                     name="password"
-                    placeholder="Generate password"
+                    placeholder="Enter or generate password"
                     value={form.password}
                     onChange={handleChange}
-                    className="border w-full rounded-md px-3 py-2 focus:ring-1 focus:ring-green-600 bg-gray-50"
-                    readOnly
+                    className="border w-full rounded-md px-3 py-2 focus:ring-1 focus:ring-green-600"
                   />
                   <button type="button" onClick={handleGeneratePassword} className="bg-gray-200 text-sm px-3 py-2 rounded-md hover:bg-gray-300">Generate</button>
                   
                   <button type="button" onClick={handleCopyPassword} className="bg-gray-200 text-sm px-3 py-2 rounded-md hover:bg-gray-300">Copy</button>
                 </div>
+                <p className="text-xs text-gray-500 mt-1">You can type a password or click Generate to create one.</p>
               </div>
 
               <div className="flex justify-end gap-3 mt-4">

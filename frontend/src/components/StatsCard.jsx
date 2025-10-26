@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { studentAPI, supervisorAPI } from "../services/api";
 
 export default function StatsCard() {
     const [Stats, setStats] = useState({
@@ -10,14 +11,38 @@ export default function StatsCard() {
 
     useEffect(() => {
         // Fetch stats from backend API
+        (async () => {
+            try {
+                const [studentsRes, supervisorsRes] = await Promise.all([
+                    studentAPI.getAllStudents(),
+                    supervisorAPI.getAllSupervisors(),
+                ]);
 
-        // Simulating with dummy data for now
-        setStats({
-            totalSupervisors: 15,
-            totalStudents: 120,
-            assigned: 90,
-            unassigned: 30
-        });
+                const students = studentsRes?.data || [];
+                const supervisors = supervisorsRes?.data || [];
+
+                const totalStudents = Array.isArray(students) ? students.length : (students.total || 0);
+                const totalSupervisors = Array.isArray(supervisors) ? supervisors.length : (supervisors.total || 0);
+
+                // If students array contains assignment info
+                let assigned = 0;
+                let unassigned = 0;
+                if (Array.isArray(students)) {
+                    assigned = students.filter(s => s.supervisorId || s.assigned).length;
+                    unassigned = totalStudents - assigned;
+                }
+
+                setStats({
+                    totalSupervisors,
+                    totalStudents,
+                    assigned,
+                    unassigned
+                });
+            } catch (err) {
+                console.error('Failed to fetch stats', err);
+                // keep defaults if fetch fails
+            }
+        })();
     }, []);
 
     const Card = ({ title, value, color, icon }) => (

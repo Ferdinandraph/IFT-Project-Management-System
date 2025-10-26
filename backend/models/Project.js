@@ -6,6 +6,7 @@ const projectSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   fileUrl: { type: String, required: true },
+  chapter: { type: Number, min: 1, max: 5, default: 1 },
   feedback: { type: String },
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   submittedAt: { type: Date, default: Date.now },

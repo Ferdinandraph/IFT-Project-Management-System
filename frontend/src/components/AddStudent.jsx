@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import { studentAPI } from "../services/api";
 
 export default function AddStudent() {
   const [isOpen, setIsOpen] = useState(false);
   const [form, setForm] = useState({
-    fullName: "",
+    name: "",
     matricNumber: "",
     group: "",
   });
@@ -21,7 +22,7 @@ export default function AddStudent() {
 
   const handleCloseModal = () => {
     setIsOpen(false);
-    setForm({ fullName: "", matricNumber: "", group: "" });
+    setForm({ name: "", matricNumber: "", group: "" });
     setError("");
     setSuccess("");
   };
@@ -33,21 +34,32 @@ export default function AddStudent() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!form.fullName || !form.matricNumber || !form.group) {
+    if (!form.name || !form.matricNumber || !form.group) {
       setError("All fields are required");
       return;
     }
 
     setError("");
+    // Call API to add student
+    (async () => {
+      try {
+        const payload = {
+          name: form.name,
+          matricNumber: form.matricNumber,
+          group: form.group,
+        };
 
-    // Temporary frontend-only success simulation
-    setTimeout(() => {
-      console.log("Student added:", form);
-      setSuccess("Student added successfully!");
-      setTimeout(() => {
-        handleCloseModal();
-      }, 1500);
-    }, 500);
+        await studentAPI.addStudent(payload);
+        setSuccess("Student added successfully!");
+        setTimeout(() => {
+          handleCloseModal();
+        }, 1200);
+      } catch (err) {
+        console.error(err);
+        const msg = err?.response?.data?.message || err.message || "Failed to add student";
+        setError(msg);
+      }
+    })();
   };
 
   return (
@@ -95,9 +107,9 @@ export default function AddStudent() {
                 </label>
                 <input
                   type="text"
-                  name="fullName"
+                  name="name"
                   placeholder="Enter student's full name"
-                  value={form.fullName}
+                  value={form.name}
                   onChange={handleChange}
                   className="border w-full rounded-md px-3 py-2 focus:ring-1 focus:ring-green-600"
                 />

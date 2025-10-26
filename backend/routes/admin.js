@@ -8,6 +8,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 const Supervisor = require('../models/Supervisor');
 const Student = require('../models/Student');
 const Project = require('../models/Project');
+const Group = require('../models/Group');
 
 // Configure Multer for CSV uploads
 const storage = multer.diskStorage({
@@ -51,6 +52,16 @@ router.post('/supervisor', authMiddleware(['admin']), async (req, res) => {
     });
     await supervisor.save();
     res.status(201).json({ message: 'Supervisor added successfully', supervisor });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
+
+// Get all supervisors
+router.get('/supervisors', authMiddleware(['admin']), async (req, res) => {
+  try {
+    const supervisors = await Supervisor.find().select('-password');
+    res.json(supervisors);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
@@ -113,6 +124,16 @@ router.post('/student', authMiddleware(['admin']), async (req, res) => {
     });
     await student.save();
     res.status(201).json({ message: 'Student added successfully', student });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
+
+// Get all students
+router.get('/students', authMiddleware(['admin']), async (req, res) => {
+  try {
+    const students = await Student.find();
+    res.json(students);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
@@ -226,3 +247,55 @@ router.post('/students/csv', authMiddleware(['admin']), upload.single('file'), a
 });
 
 module.exports = router;
+
+// Groups endpoints
+// Create group (admin)
+router.post('/groups', authMiddleware(['admin']), async (req, res) => {
+  const { groupName, leadSupervisor, additionalSupervisors } = req.body;
+  try {
+    const group = new Group({ groupName, leadSupervisor, additionalSupervisors });
+    await group.save();
+    res.status(201).json({ message: 'Group created', group });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
+
+// Get all groups (admin)
+router.get('/groups', authMiddleware(['admin']), async (req, res) => {
+  try {
+    const groups = await Group.find().populate('leadSupervisor', '-password').populate('additionalSupervisors', '-password');
+    res.json(groups);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
+
+// Update group (admin)
+router.put('/groups/:id', authMiddleware(['admin']), async (req, res) => {
+  const { groupName, leadSupervisor, additionalSupervisors } = req.body;
+  try {
+    const group = await Group.findById(req.params.id);
+    if (!group) return res.status(404).json({ message: 'Group not found' });
+    group.groupName = groupName || group.groupName;
+    group.leadSupervisor = leadSupervisor || group.leadSupervisor;
+    group.additionalSupervisors = additionalSupervisors || group.additionalSupervisors;
+    await group.save();
+    const populated = await Group.findById(group._id).populate('leadSupervisor', '-password').populate('additionalSupervisors', '-password');
+    res.json({ message: 'Group updated', group: populated });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
+
+// Delete group (admin)
+router.delete('/groups/:id', authMiddleware(['admin']), async (req, res) => {
+  try {
+    const group = await Group.findByIdAndDelete(req.params.id);
+    if (!group) return res.status(404).json({ message: 'Group not found' });
+    res.json({ message: 'Group deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
+
