@@ -78,7 +78,7 @@ const LoginModal = ({ isOpen, onClose, role }) => {
             <label className="block text-gray-700 font-medium mb-1">Password</label>
             <input
               type="password"
-              placeholder={role === 'student' ? 'Enter your matric number' : 'Enter your password'}
+              placeholder={role === 'student' ? 'Enter password (default: your matric number)' : 'Enter your password'}
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

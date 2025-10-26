@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const studentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   matricNumber: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
   supervisorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' },
   role: { type: String, default: 'student' },
 });

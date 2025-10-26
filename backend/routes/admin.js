@@ -13,7 +13,12 @@ const Group = require('../models/Group');
 // Configure Multer for CSV uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    const uploadDir = 'uploads/';
+    // ensure uploads directory exists
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
@@ -21,7 +26,9 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'text/csv') {
+  // Accept common CSV mimetypes and fall back to extension check
+  const accepted = ['text/csv', 'application/vnd.ms-excel', 'text/plain'];
+  if (accepted.includes(file.mimetype) || (file.originalname && file.originalname.toLowerCase().endsWith('.csv'))) {
     cb(null, true);
   } else {
     cb(new Error('Only CSV files are allowed'), false);
@@ -118,12 +125,16 @@ router.post('/student', authMiddleware(['admin']), async (req, res) => {
     if (existingStudent) {
       return res.status(400).json({ message: 'Matric number already exists' });
     }
+    // Default password for a student will be their matric number (hashed)
+    const hashedPassword = await bcrypt.hash(matricNumber, 10);
     const student = new Student({
       name,
       matricNumber,
+      password: hashedPassword,
     });
-    await student.save();
-    res.status(201).json({ message: 'Student added successfully', student });
+  await student.save();
+  const studentSafe = await Student.findById(student._id).select('-password');
+  res.status(201).json({ message: 'Student added successfully', student: studentSafe });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
@@ -132,7 +143,8 @@ router.post('/student', authMiddleware(['admin']), async (req, res) => {
 // Get all students
 router.get('/students', authMiddleware(['admin']), async (req, res) => {
   try {
-    const students = await Student.find();
+    // Do not return password hashes
+    const students = await Student.find().select('-password');
     res.json(students);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
@@ -202,13 +214,17 @@ router.post('/students/csv', authMiddleware(['admin']), upload.single('file'), a
   fs.createReadStream(req.file.path)
     .pipe(parse({ columns: true, trim: true }))
     .on('data', (row) => {
-      if (row.name && row.matricNumber) {
-        students.push({
-          name: row.name,
-          matricNumber: row.matricNumber,
-        });
-      }
-    })
+        // Normalize common CSV header variants so uploads from different templates work.
+        const name = row.name || row.FullName || row.fullName || row.fullname || row['Full Name'] || row['full name'];
+        const matricNumber = row.matricNumber || row.MatricNumber || row.matricnumber || row['MatricNumber'] || row['Matric Number'] || row['matric number'];
+
+        if (name && matricNumber) {
+          students.push({
+            name: name,
+            matricNumber: matricNumber,
+          });
+        }
+      })
     .on('end', async () => {
       try {
         const addedStudents = [];
@@ -221,12 +237,17 @@ router.post('/students/csv', authMiddleware(['admin']), upload.single('file'), a
             errors.push(`Student with matric number ${matricNumber} already exists`);
             continue;
           }
+          // Hash matric number as default password
+          const hashedPassword = await bcrypt.hash(matricNumber, 10);
           const student = new Student({
             name,
             matricNumber,
+            password: hashedPassword,
           });
           await student.save();
-          addedStudents.push(student);
+          // Exclude password from returned list
+          const studentSafe = await Student.findById(student._id).select('-password');
+          addedStudents.push(studentSafe);
         }
 
         // Clean up uploaded file

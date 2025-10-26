@@ -6,7 +6,6 @@ export default function AddStudent() {
   const [form, setForm] = useState({
     name: "",
     matricNumber: "",
-    group: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -22,7 +21,7 @@ export default function AddStudent() {
 
   const handleCloseModal = () => {
     setIsOpen(false);
-    setForm({ name: "", matricNumber: "", group: "" });
+    setForm({ name: "", matricNumber: "" });
     setError("");
     setSuccess("");
   };
@@ -34,8 +33,8 @@ export default function AddStudent() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!form.name || !form.matricNumber || !form.group) {
-      setError("All fields are required");
+    if (!form.name || !form.matricNumber) {
+      setError("Name and matric number are required");
       return;
     }
 
@@ -46,7 +45,6 @@ export default function AddStudent() {
         const payload = {
           name: form.name,
           matricNumber: form.matricNumber,
-          group: form.group,
         };
 
         await studentAPI.addStudent(payload);

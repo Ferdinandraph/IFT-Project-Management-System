@@ -14,7 +14,7 @@ export default function Home() {
 
 
     return (
-        <div className="w-full pt-[50px]">
+        <div className="w-full pt-[20px]">
             {/*=============== HERO ================= */}
             <section className="bg-white mt-20">
                 <div className="max-w-4xl mx-auto text-center">

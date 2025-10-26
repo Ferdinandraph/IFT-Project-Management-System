@@ -160,6 +160,16 @@ export default function SideBar({onNavigate}) {
 
               <li>
                 <Link
+                  to="/admin/students/manage"
+                  onClick={onNavigate}
+                  className={`${baseClass} text-sm font-semibold ${location.pathname === "/admin/students/manage" ? activeClass : ""
+                  }`}>
+                  Manage Students
+                </Link>
+              </li>
+
+              <li>
+                <Link
                   to="/admin/students/view-assigned"
                   onClick={onNavigate}
                   className={`${baseClass} text-sm font-semibold ${location.pathname === "/admin/students/view-assigned" ? activeClass : ""

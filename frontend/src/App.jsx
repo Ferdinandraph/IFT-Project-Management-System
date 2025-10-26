@@ -8,11 +8,13 @@ import AddSupervisor from "./components/AddSupervisor";
 import AssignSupervisor from "./components/AssignSupervisor";
 import ViewAssigned from "./components/ViewAssigned";
 import SupervisorDashboard from "./pages/SupervisorDashboard";
+import StudentDashboard from "./pages/StudentDashboard";
 import CreateGroup from "./components/CreateGroup";
 import ViewGroups from "./components/ViewGroups";
 import ManageSupervisors from "./components/ManageSupervisors";
 import AddStudent from "./components/AddStudent";
 import UploadStudent from "./components/UploadStudent";
+import ManageStudents from "./components/ManageStudents";
 
 function App() {
   const location = useLocation();
@@ -46,11 +48,13 @@ function App() {
           <Route path="supervisors/manage" element={<ManageSupervisors />} />
           <Route path="students/add" element={<AddStudent />} />
           <Route path="students/upload" element={<UploadStudent />} />
+          <Route path="students/manage" element={<ManageStudents />} />
           <Route path="students/assign" element={<AssignSupervisor />} />
           <Route path="students/view-assigned" element={<ViewAssigned />} />
 
         </Route>
         <Route path="/supervisor-dashboard" element={<SupervisorDashboard />} />
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
       </Routes>
     </div>
   );

@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const projectSchema = new mongoose.Schema({
   studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true },
-  supervisorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor', required: true },
+  // supervisorId can be null/unassigned at upload time; make optional
+  supervisorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' },
   title: { type: String, required: true },
   description: { type: String, required: true },
   fileUrl: { type: String, required: true },

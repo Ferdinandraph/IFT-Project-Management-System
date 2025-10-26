@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api'; // Change to your backend URL in production
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'; // Change to your backend URL in production
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -37,6 +37,12 @@ export const studentAPI = {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
   getAllStudents: () => api.get('/admin/students'), // You'll need to add this route
+};
+
+// Student-specific API
+export const studentClient = {
+  getDashboard: () => api.get('/student/dashboard'),
+  uploadProject: (formData) => api.post('/student/project', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
 };
 
 // Admin (groups) API
